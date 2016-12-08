@@ -13,14 +13,22 @@ CREATE DATABASE tournament;
 
 CREATE TABLE players (
     id serial PRIMARY KEY,
-    name text,
-    wins integer,
-    matches integer
+    name text
 );
 
--- win = TRUE if player 1 wins, else FALSE
+
 CREATE TABLE matches (
-    winner_id serial REFERENCES players (id),
-    loser_id serial REFERENCES players (id)
+    id serial PRIMARY KEY,
+    winner integer REFERENCES players (id),
+    loser integer REFERENCES players (id)
 );
+
+
+CREATE VIEW standings AS
+SELECT players.id, name,
+(SELECT COUNT(*) FROM matches WHERE winner = players.id) AS wins,
+(SELECT COUNT(*) FROM matches WHERE players.id IN (winner, loser)) AS played
+FROM players
+GROUP BY players.id
+ORDER BY wins DESC;
 
